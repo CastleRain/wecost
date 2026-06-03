@@ -132,6 +132,9 @@ tr:hover td { background: #fafafe; }
 /* ===== 저축 페이지 ===== */
 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .inp-label { display: block; font-size: 11px; font-weight: 600; color: var(--sub); margin: 12px 0 4px; }
+.sav-inp-wrap { display: flex; align-items: center; gap: 8px; }
+.sav-inp-wrap .sav-input { flex: 1; min-width: 0; }
+.sav-amt-label { font-size: 12px; font-weight: 700; color: var(--purple); min-width: 64px; text-align: right; white-space: nowrap; }
 .sav-input { width: 100%; border: 1px solid #e5e5e5; border-radius: 8px; padding: 9px 12px; font-size: 14px; color: var(--text); font-family: inherit; transition: 0.15s; }
 .sav-input:focus { outline: none; border-color: var(--purple); }
 .sav-date-input { border: 1px solid #e5e5e5; border-radius: 8px; padding: 9px 12px; font-size: 14px; color: var(--text); font-family: inherit; }
@@ -154,16 +157,37 @@ tr:hover td { background: #fafafe; }
 .amt-neg  { color: var(--red); font-weight: 700; white-space: nowrap; }
 .amt-big  { color: var(--purple); font-size: 22px; font-weight: 900; white-space: nowrap; }
 .toggle-chk { cursor: pointer; width: 15px; height: 15px; }
-/* Extra expenses */
-.exp-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid #f5f5f5; }
+/* 조정 항목 (+/-) */
+.exp-row { display: flex; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 1px solid #f5f5f5; }
+.exp-sign-btn { width: 28px; height: 28px; border-radius: 50%; font-size: 14px; font-weight: 800; cursor: pointer; border: 2px solid; flex-shrink: 0; transition: 0.15s; padding: 0; }
+.exp-sign-btn.minus { background: #fef0f0; color: var(--red); border-color: var(--red); }
+.exp-sign-btn.plus  { background: #e8f8ef; color: var(--green); border-color: var(--green); }
 .exp-inp-name { flex: 1; border: 1px solid #eee; border-radius: 6px; padding: 6px 10px; font-size: 13px; color: var(--text); font-family: inherit; }
 .exp-inp-name:focus { outline: none; border-color: var(--purple); }
-.exp-inp-amt { width: 130px; border: 1px solid #eee; border-radius: 6px; padding: 6px 10px; font-size: 13px; color: var(--text); text-align: right; font-family: inherit; }
+.exp-inp-amt { width: 120px; border: 1px solid #eee; border-radius: 6px; padding: 6px 10px; font-size: 13px; color: var(--text); text-align: right; font-family: inherit; }
 .exp-inp-amt:focus { outline: none; border-color: var(--purple); }
 .exp-del-btn { background: none; border: none; color: #ccc; cursor: pointer; font-size: 16px; padding: 2px 4px; transition: 0.15s; }
 .exp-del-btn:hover { color: var(--red); }
 .add-btn { background: none; border: 1px dashed #ccc; border-radius: 8px; padding: 7px 14px; font-size: 12px; color: #aaa; cursor: pointer; transition: 0.15s; margin-top: 4px; }
 .add-btn:hover { border-color: var(--purple); color: var(--purple); }
+/* 대출 프리셋 카드 */
+.preset-controls { display: flex; gap: 20px; align-items: flex-end; margin-bottom: 16px; flex-wrap: wrap; }
+.preset-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.preset-card { background: #fafbff; border: 1px solid #e8e4ff; border-radius: 12px; padding: 14px 10px; text-align: center; transition: 0.15s; }
+.preset-card:hover { border-color: var(--purple); background: #f4f3ff; }
+.preset-loan-lbl { font-size: 11px; color: var(--sub); font-weight: 600; margin-bottom: 4px; }
+.preset-house-val { font-size: 18px; font-weight: 900; color: var(--purple); }
+.preset-monthly-val { font-size: 12px; font-weight: 700; color: var(--orange); margin-top: 6px; }
+.preset-detail { font-size: 10px; color: #bbb; margin-top: 3px; }
+/* 대출 추가 슬라이더 패널 */
+.add-loan-panel { background: #f8f8ff; border: 1px solid #e0dcff; border-radius: 14px; padding: 18px; margin-bottom: 14px; }
+.add-loan-panel h4 { font-size: 12px; font-weight: 700; color: var(--purple); margin-bottom: 12px; }
+.add-loan-slider { width: 100%; accent-color: var(--purple); cursor: pointer; }
+.add-loan-slider-ticks { display: flex; justify-content: space-between; font-size: 10px; color: #bbb; margin-top: 3px; }
+.add-loan-fields { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; margin-top: 12px; }
+.add-loan-fields .inp-grp input,
+.add-loan-fields .inp-grp select { padding: 7px 8px; font-size: 12px; }
+@media (max-width: 600px) { .preset-grid { grid-template-columns: repeat(2, 1fr); } }
 /* 다중 대출 카드 */
 .loan-grid { display: flex; flex-direction: column; gap: 14px; margin-bottom: 14px; }
 .loan-card { border: 1px solid #e8e8e8; border-radius: 14px; padding: 18px; background: #fafbff; position: relative; }
@@ -321,7 +345,8 @@ tr:hover td { background: #fafafe; }
 
         <!-- 자산 배분 밴드 -->
         <div class="card">
-          <h3>📊 순수 자산 포트폴리오 배분 <span class="card-sub" id="band-asset-lbl"></span></h3>
+          <h3>💡 집 마련을 위한 자금 배분 <span class="card-sub" id="band-asset-lbl"></span></h3>
+          <p style="font-size:11px;color:#aaa;margin-top:-8px;margin-bottom:8px">부부 순수 저축 기준 — 집·결혼·여유자금을 어떻게 나눠 쓸지 한눈에</p>
           <div class="band-wrap">
             <div class="band-seg band-house"   id="band-house"   style="width:0%">집</div>
             <div class="band-seg band-wedding" id="band-wedding" style="width:0%">결혼</div>
@@ -401,16 +426,28 @@ tr:hover td { background: #fafafe; }
           <div class="card" style="margin-bottom:0">
             <h3 style="color:#e91e8c">🌸 소희</h3>
             <label class="inp-label">현재 저축액 (원)</label>
-            <input type="number" class="sav-input" id="inp-sohee-cur" oninput="updateAll()">
+            <div class="sav-inp-wrap">
+              <input type="number" class="sav-input" id="inp-sohee-cur" oninput="savLbl('inp-sohee-cur','lbl-sc');updateAll()">
+              <span class="sav-amt-label" id="lbl-sc"></span>
+            </div>
             <label class="inp-label">월 저축액 (원)</label>
-            <input type="number" class="sav-input" id="inp-sohee-mon" oninput="updateAll()">
+            <div class="sav-inp-wrap">
+              <input type="number" class="sav-input" id="inp-sohee-mon" oninput="savLbl('inp-sohee-mon','lbl-sm');updateAll()">
+              <span class="sav-amt-label" id="lbl-sm"></span>
+            </div>
           </div>
           <div class="card" style="margin-bottom:0">
             <h3 style="color:var(--purple)">🌊 성우</h3>
             <label class="inp-label">현재 저축액 (원)</label>
-            <input type="number" class="sav-input" id="inp-sunwo-cur" oninput="updateAll()">
+            <div class="sav-inp-wrap">
+              <input type="number" class="sav-input" id="inp-sunwo-cur" oninput="savLbl('inp-sunwo-cur','lbl-wc');updateAll()">
+              <span class="sav-amt-label" id="lbl-wc"></span>
+            </div>
             <label class="inp-label">월 저축액 (원)</label>
-            <input type="number" class="sav-input" id="inp-sunwo-mon" oninput="updateAll()">
+            <div class="sav-inp-wrap">
+              <input type="number" class="sav-input" id="inp-sunwo-mon" oninput="savLbl('inp-sunwo-mon','lbl-wm');updateAll()">
+              <span class="sav-amt-label" id="lbl-wm"></span>
+            </div>
           </div>
         </div>
 
@@ -434,51 +471,7 @@ tr:hover td { background: #fafafe; }
           <div><h1>🏠 집 계획</h1><p>가용 현금과 대출을 조합해 집 예산을 설계해요.</p></div>
         </div>
 
-        <!-- 집 예산 한눈에 보기 (슬라이더) -->
-        <div class="card" id="quick-house-card">
-          <h3>🏠 집 예산 한눈에 보기</h3>
-          <div class="quick-slider-wrap">
-            <div class="quick-slider-header">
-              <span style="font-size:13px;font-weight:600;color:#555">추가 대출금액</span>
-              <span id="quick-loan-val" style="font-size:18px;font-weight:900;color:var(--purple)">₩2억</span>
-            </div>
-            <input type="range" id="quick-loan-slider" class="quick-slider"
-                   min="0" max="1000000000" step="10000000" value="200000000"
-                   oninput="updateQuickLoan()">
-            <div class="quick-slider-ticks">
-              <span>₩0</span><span>₩2.5억</span><span>₩5억</span><span>₩7.5억</span><span>₩10억</span>
-            </div>
-          </div>
-          <div class="quick-controls">
-            <div class="loan-ctrl">
-              <label>금리 &nbsp;<strong id="quick-rate-display">3.5</strong>%</label>
-              <input type="range" id="quick-rate" min="1" max="8" step="0.1" value="3.5"
-                     oninput="updateQuickRate();updateQuickLoan()" style="width:120px;accent-color:var(--purple)">
-            </div>
-            <div class="loan-ctrl">
-              <label>상환 기간</label>
-              <select id="quick-term" onchange="updateQuickLoan()">
-                <option value="10">10년</option>
-                <option value="20">20년</option>
-                <option value="30" selected>30년</option>
-              </select>
-            </div>
-          </div>
-          <div class="quick-result">
-            <div class="quick-result-box" style="border-color:var(--purple)">
-              <div class="quick-result-label">최대 집 예산</div>
-              <div class="quick-result-val" id="quick-max-house" style="color:var(--purple)">₩0</div>
-              <div class="quick-result-sub" id="quick-breakdown">현금 ₩0 + 대출 ₩0</div>
-            </div>
-            <div class="quick-result-box" style="border-color:var(--orange)">
-              <div class="quick-result-label">월 납입금 (대출분)</div>
-              <div class="quick-result-val" id="quick-monthly" style="color:var(--orange)">-</div>
-              <div class="quick-result-sub" id="quick-monthly-sub"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 총 가용 금액 -->
+        <!-- 1. 총 가용 현금 (최상단) -->
         <div class="card">
           <h3>💵 총 가용 현금</h3>
           <div class="calc-row">
@@ -505,7 +498,7 @@ tr:hover td { background: #fafafe; }
           </div>
           <div id="extra-expenses-list"></div>
           <div style="padding:6px 0 2px">
-            <button class="add-btn" onclick="addExtraExpense()">+ 추가 지출 항목</button>
+            <button class="add-btn" onclick="addExtraExpense()">+ 조정 항목 추가 <span style="color:#bbb;font-weight:400">(버튼으로 +지출 / -수입 전환)</span></button>
           </div>
           <div class="calc-divider"></div>
           <div class="calc-row total-row">
@@ -514,13 +507,80 @@ tr:hover td { background: #fafafe; }
           </div>
         </div>
 
-        <!-- 대출 시뮬레이터 -->
-        <div class="card" style="background:transparent;box-shadow:none;padding:0 4px">
-          <h3 style="margin-bottom:14px;font-size:13px;font-weight:700;color:#555">🏦 다중 대출 시뮬레이터 <span class="card-sub">대출 상품을 여러 개 추가해 조합해보세요.</span></h3>
-          <div id="loan-grid" class="loan-grid"></div>
-          <button class="add-btn" onclick="addLoan()" style="width:100%;padding:12px">+ 새 대출 상품 추가</button>
+        <!-- 2. 대출 금액별 예상 카드 6개 (1억 단위) -->
+        <div class="card">
+          <h3>💳 대출 금액별 집 예산 예상</h3>
+          <div class="preset-controls">
+            <div class="loan-ctrl">
+              <label>금리 <strong id="preset-rate-display">3.5</strong>%</label>
+              <input type="range" id="preset-rate" min="1" max="8" step="0.1" value="3.5"
+                     oninput="updatePresetRate()" style="width:130px;accent-color:var(--purple)">
+            </div>
+            <div class="loan-ctrl">
+              <label>기간</label>
+              <select id="preset-term" onchange="renderPresetCards()">
+                <option value="10">10년</option>
+                <option value="20">20년</option>
+                <option value="30" selected>30년</option>
+              </select>
+            </div>
+            <span style="font-size:11px;color:#bbb;align-self:center">원리금균등 기준</span>
+          </div>
+          <div class="preset-grid" id="preset-grid"></div>
+        </div>
 
-          <div class="total-loan-bar" style="margin-top:16px">
+        <!-- 3. 다중 대출 시뮬레이터 (슬라이더로 추가) -->
+        <div class="card" style="background:transparent;box-shadow:none;padding:0 4px">
+          <h3 style="margin-bottom:14px;font-size:13px;font-weight:700;color:#555">🏦 다중 대출 시뮬레이터 <span class="card-sub">여러 대출을 조합해 월 납입금을 확인해요.</span></h3>
+
+          <!-- 슬라이더로 대출 추가 -->
+          <div class="add-loan-panel">
+            <h4>➕ 대출 추가 (슬라이더로 금액 설정)</h4>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+              <span style="font-size:13px;font-weight:600;color:#555">대출 금액</span>
+              <span id="add-loan-val" style="font-size:20px;font-weight:900;color:var(--purple)">₩2억</span>
+            </div>
+            <input type="range" class="add-loan-slider" id="add-loan-slider"
+                   min="0" max="1000000000" step="10000000" value="200000000"
+                   oninput="updateAddLoanSlider()">
+            <div class="add-loan-slider-ticks">
+              <span>₩0</span><span>₩2.5억</span><span>₩5억</span><span>₩7.5억</span><span>₩10억</span>
+            </div>
+            <div class="add-loan-fields">
+              <div class="inp-grp">
+                <label>대출명</label>
+                <input type="text" id="add-loan-name" value="주택담보대출" style="width:120px">
+              </div>
+              <div class="inp-grp">
+                <label>금리 (%)</label>
+                <input type="number" id="add-loan-rate" value="3.5" step="0.1" style="width:80px">
+              </div>
+              <div class="inp-grp">
+                <label>기간</label>
+                <select id="add-loan-term">
+                  <option value="10">10년</option>
+                  <option value="20">20년</option>
+                  <option value="30" selected>30년</option>
+                </select>
+              </div>
+              <div class="inp-grp">
+                <label>상환방식</label>
+                <select id="add-loan-type">
+                  <option value="원리금">원리금균등</option>
+                  <option value="원금">원금균등</option>
+                  <option value="만기">만기일시</option>
+                </select>
+              </div>
+              <button onclick="addLoanFromSlider()"
+                      style="background:var(--purple);color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;align-self:flex-end;height:36px">
+                추가
+              </button>
+            </div>
+          </div>
+
+          <div id="loan-grid" class="loan-grid"></div>
+
+          <div class="total-loan-bar">
             <div class="tl-label">
               월 감당 한도:
               <input type="number" class="tl-limit-inp" id="inp-loan-limit" value="1500000" oninput="saveUIState();renderLoans()">
@@ -628,6 +688,14 @@ function monthsBetween(dateStr) {
   return Math.max(0, (d.getFullYear()-t.getFullYear())*12 + (d.getMonth()-t.getMonth()));
 }
 function pct(a, b) { return b > 0 ? Math.min(100, Math.round(a/b*100)) : 0; }
+function savLbl(inputId, labelId) {
+  const n = Number(document.getElementById(inputId).value) || 0;
+  const el = document.getElementById(labelId);
+  if (!el) return;
+  if (n >= 100000000) el.textContent = `${(n/100000000).toFixed(1)}억원`;
+  else if (n >= 10000) el.textContent = `${Math.round(n/10000).toLocaleString()}만원`;
+  else el.textContent = n > 0 ? `${n.toLocaleString()}원` : '';
+}
 
 // ==================== CSV 파싱 ====================
 function parseCSVLine(line) {
@@ -747,10 +815,14 @@ function applySettings(parsed, force) {
     if (st.loans.length === 0 && st.companyLoanAmt > 0) {
       st.loans.push({ id: Date.now(), name: '🏢 사내대출', amount: st.companyLoanAmt, rate: 2.0, term: 13, grace: 1, noInterestGrace: true, type: 'company' });
     }
-    // 추가 지출 복원
+    // 조정 항목 복원 (sign 포함)
     const expList = document.getElementById('extra-expenses-list');
     expList.innerHTML = '';
-    (ui.extras || []).forEach(e => addExtraExpense(e.name, e.amount));
+    (ui.extras || []).forEach(e => addExtraExpense(e.name, e.amount, e.sign || '-'));
+
+    // 저축 레이블 초기화
+    savLbl('inp-sohee-cur','lbl-sc'); savLbl('inp-sohee-mon','lbl-sm');
+    savLbl('inp-sunwo-cur','lbl-wc'); savLbl('inp-sunwo-mon','lbl-wm');
 
     st.initialLoaded = true;
   }
@@ -764,7 +836,11 @@ function applySettings(parsed, force) {
 function saveUIState() {
   const extras = [];
   document.querySelectorAll('.exp-row').forEach(r => {
-    extras.push({ name: r.querySelector('.exp-inp-name').value, amount: Number(r.querySelector('.exp-inp-amt').value) || 0 });
+    extras.push({
+      name:   r.querySelector('.exp-inp-name').value,
+      amount: Number(r.querySelector('.exp-inp-amt').value) || 0,
+      sign:   r.querySelector('.exp-sign-btn').textContent,
+    });
   });
   localStorage.setItem(LS_UI, JSON.stringify({
     wedDate:  document.getElementById('inp-wed-date').value,
@@ -998,12 +1074,13 @@ function renderHouse() {
   const supS = incSohee ? st.parentSohee : 0;
   const supW = incSunwo ? st.parentSunwo : 0;
 
-  let extraTotal = 0;
+  let adjustTotal = 0; // + 부호면 더하고, - 부호면 빼기
   document.querySelectorAll('.exp-row').forEach(r => {
-    extraTotal += Number(r.querySelector('.exp-inp-amt').value) || 0;
+    const sign = r.querySelector('.exp-sign-btn').textContent === '+' ? 1 : -1;
+    adjustTotal += sign * (Number(r.querySelector('.exp-inp-amt').value) || 0);
   });
 
-  const avail = Math.max(0, st.coupleSavings - st.totalPlanned + supS + supW - extraTotal);
+  const avail = Math.max(0, st.coupleSavings - st.totalPlanned + supS + supW + adjustTotal);
 
   document.getElementById('cash-savings').textContent = won(st.coupleSavings);
   document.getElementById('cash-wedding').textContent = `-${won(st.totalPlanned)}`;
@@ -1014,37 +1091,70 @@ function renderHouse() {
   currentAvailCash = avail;
   document.getElementById('cash-available').textContent = won(avail);
 
-  updateQuickLoan();
+  renderPresetCards();
   renderLoans(avail);
 }
 
-// ==================== 집 예산 슬라이더 ====================
-function updateQuickRate() {
-  document.getElementById('quick-rate-display').textContent =
-    Number(document.getElementById('quick-rate').value).toFixed(1);
+// ==================== 대출 프리셋 카드 ====================
+function updatePresetRate() {
+  const v = Number(document.getElementById('preset-rate').value).toFixed(1);
+  document.getElementById('preset-rate-display').textContent = v;
+  renderPresetCards();
 }
 
-function updateQuickLoan() {
-  const loanAmt = Number(document.getElementById('quick-loan-slider').value);
-  const rate    = Number(document.getElementById('quick-rate').value);
-  const term    = Number(document.getElementById('quick-term').value);
-  const avail   = currentAvailCash;
+function renderPresetCards() {
+  const rate  = Number(document.getElementById('preset-rate').value);
+  const term  = Number(document.getElementById('preset-term').value);
+  const avail = currentAvailCash;
+  const amounts = [100000000, 200000000, 300000000, 400000000, 500000000, 600000000];
+  const grid = document.getElementById('preset-grid');
+  if (!grid) return;
+  grid.innerHTML = amounts.map(loanAmt => {
+    const monthly  = calcLoanMonthly({ amount: loanAmt, rate, term, grace: 0, type: '원리금' });
+    const maxHouse = avail + loanAmt;
+    return `
+      <div class="preset-card">
+        <div class="preset-loan-lbl">${won(loanAmt)} 대출 시</div>
+        <div class="preset-house-val">${won(maxHouse)}</div>
+        <div class="preset-monthly-val">월 ${wonFull(monthly)}</div>
+        <div class="preset-detail">현금 ${won(avail)} + 대출 ${won(loanAmt)}</div>
+      </div>
+    `;
+  }).join('');
+}
 
-  document.getElementById('quick-loan-val').textContent = loanAmt === 0 ? '대출 없음' : won(loanAmt);
+// ==================== 슬라이더로 대출 추가 ====================
+function updateAddLoanSlider() {
+  const val = Number(document.getElementById('add-loan-slider').value);
+  document.getElementById('add-loan-val').textContent = val === 0 ? '₩0 (대출 없음)' : won(val);
+}
 
-  const maxHouse = avail + loanAmt;
-  document.getElementById('quick-max-house').textContent = won(maxHouse);
-  document.getElementById('quick-breakdown').textContent =
-    `현금 ${won(avail)} + 대출 ${won(loanAmt)}`;
+function addLoanFromSlider() {
+  const amount = Number(document.getElementById('add-loan-slider').value);
+  if (!amount) { alert('대출 금액을 0 이상으로 설정해주세요.'); return; }
+  st.loans.push({
+    id:    Date.now(),
+    name:  document.getElementById('add-loan-name').value || '대출',
+    amount,
+    rate:  Number(document.getElementById('add-loan-rate').value) || 3.5,
+    term:  Number(document.getElementById('add-loan-term').value) || 30,
+    grace: 0,
+    type:  document.getElementById('add-loan-type').value || '원리금',
+  });
+  updateAll();
+}
 
-  if (loanAmt === 0) {
-    document.getElementById('quick-monthly').textContent = '-';
-    document.getElementById('quick-monthly-sub').textContent = '대출 없이 구매';
+// ==================== 조정 항목 부호 토글 ====================
+function toggleExpSign(btn) {
+  if (btn.textContent === '-') {
+    btn.textContent = '+';
+    btn.classList.replace('minus','plus');
   } else {
-    const monthly = calcLoanMonthly({ amount: loanAmt, rate, term, grace: 0, type: '원리금' });
-    document.getElementById('quick-monthly').textContent = wonFull(monthly);
-    document.getElementById('quick-monthly-sub').textContent = `금리 ${rate.toFixed(1)}% · ${term}년 원리금균등`;
+    btn.textContent = '-';
+    btn.classList.replace('plus','minus');
   }
+  saveUIState();
+  renderHouse();
 }
 
 // ==================== 대출 로직 ====================
@@ -1141,12 +1251,14 @@ function removeLoan(idx) {
 }
 
 // ==================== 추가 지출 ====================
-function addExtraExpense(name='', amount='') {
+function addExtraExpense(name='', amount='', sign='-') {
   const row = document.createElement('div');
   row.className = 'exp-row';
+  const cls = sign === '+' ? 'plus' : 'minus';
   row.innerHTML = `
+    <button class="exp-sign-btn ${cls}" onclick="toggleExpSign(this)" title="클릭해서 +지출/-수입 전환">${sign}</button>
     <input class="exp-inp-name" type="text" placeholder="항목명 (예: 이사비)" value="${name}" oninput="saveUIState();renderHouse()">
-    <input class="exp-inp-amt"  type="number" placeholder="0" value="${amount}"           oninput="saveUIState();renderHouse()">
+    <input class="exp-inp-amt"  type="number" placeholder="0" value="${amount}" oninput="saveUIState();renderHouse()">
     <button class="exp-del-btn" onclick="this.parentElement.remove();saveUIState();renderHouse()">✕</button>
   `;
   document.getElementById('extra-expenses-list').appendChild(row);
