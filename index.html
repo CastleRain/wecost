@@ -191,6 +191,19 @@ tr:hover td { background: #fafafe; }
 .status-safe { background: #e8f8ef; color: #1e8449; }
 .status-warn { background: #fef0f0; color: var(--red); }
 
+/* ===== 집 예산 슬라이더 ===== */
+.quick-slider-wrap { margin-bottom: 14px; }
+.quick-slider-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.quick-slider { width: 100%; accent-color: var(--purple); cursor: pointer; height: 6px; }
+.quick-slider-ticks { display: flex; justify-content: space-between; font-size: 10px; color: #bbb; margin-top: 4px; }
+.quick-controls { display: flex; gap: 24px; align-items: flex-end; margin-bottom: 16px; flex-wrap: wrap; }
+.quick-result { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px; }
+.quick-result-box { border: 2px solid #eee; border-radius: 12px; padding: 14px 16px; text-align: center; }
+.quick-result-label { font-size: 11px; font-weight: 600; color: var(--sub); margin-bottom: 6px; }
+.quick-result-val { font-size: 22px; font-weight: 900; }
+.quick-result-sub { font-size: 11px; color: #bbb; margin-top: 5px; }
+@media (max-width: 480px) { .quick-result { grid-template-columns: 1fr; } }
+
 /* ===== 설정 패널 ===== */
 .config-panel { display: none; position: fixed; bottom: 60px; left: 230px; background: #fff; border-radius: 16px; padding: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); width: 320px; z-index: 300; }
 .config-panel.open { display: block; }
@@ -315,9 +328,24 @@ tr:hover td { background: #fafafe; }
             <div class="band-seg band-remain"  id="band-remain"  style="width:0%">잔여</div>
           </div>
           <div class="band-legend">
-            <div class="legend-item"><div class="dot" style="background:var(--blue)"></div>🏠 집 예산 (<span id="lbl-house-pct">0%</span>)</div>
-            <div class="legend-item"><div class="dot" style="background:var(--purple)"></div>💍 결혼비용 (<span id="lbl-wedding-pct">0%</span>)</div>
-            <div class="legend-item"><div class="dot" style="background:var(--green)"></div>✈️ 잔여 (<span id="lbl-remain-pct">0%</span>)</div>
+            <div class="legend-item">
+              <div class="dot" style="background:var(--blue)"></div>
+              🏠 집 예산
+              <span style="color:var(--sub);font-weight:400">(<span id="lbl-house-pct">0%</span>)</span>
+              <span id="lbl-house-amt" style="color:var(--blue);font-weight:800">₩0</span>
+            </div>
+            <div class="legend-item">
+              <div class="dot" style="background:var(--purple)"></div>
+              💍 결혼비용
+              <span style="color:var(--sub);font-weight:400">(<span id="lbl-wedding-pct">0%</span>)</span>
+              <span id="lbl-wedding-amt" style="color:var(--purple);font-weight:800">₩0</span>
+            </div>
+            <div class="legend-item">
+              <div class="dot" style="background:var(--green)"></div>
+              ✈️ 잔여
+              <span style="color:var(--sub);font-weight:400">(<span id="lbl-remain-pct">0%</span>)</span>
+              <span id="lbl-remain-amt" style="color:var(--green);font-weight:800">₩0</span>
+            </div>
           </div>
         </div>
 
@@ -404,6 +432,50 @@ tr:hover td { background: #fafafe; }
       <div class="page">
         <div class="page-hdr">
           <div><h1>🏠 집 계획</h1><p>가용 현금과 대출을 조합해 집 예산을 설계해요.</p></div>
+        </div>
+
+        <!-- 집 예산 한눈에 보기 (슬라이더) -->
+        <div class="card" id="quick-house-card">
+          <h3>🏠 집 예산 한눈에 보기</h3>
+          <div class="quick-slider-wrap">
+            <div class="quick-slider-header">
+              <span style="font-size:13px;font-weight:600;color:#555">추가 대출금액</span>
+              <span id="quick-loan-val" style="font-size:18px;font-weight:900;color:var(--purple)">₩2억</span>
+            </div>
+            <input type="range" id="quick-loan-slider" class="quick-slider"
+                   min="0" max="1000000000" step="10000000" value="200000000"
+                   oninput="updateQuickLoan()">
+            <div class="quick-slider-ticks">
+              <span>₩0</span><span>₩2.5억</span><span>₩5억</span><span>₩7.5억</span><span>₩10억</span>
+            </div>
+          </div>
+          <div class="quick-controls">
+            <div class="loan-ctrl">
+              <label>금리 &nbsp;<strong id="quick-rate-display">3.5</strong>%</label>
+              <input type="range" id="quick-rate" min="1" max="8" step="0.1" value="3.5"
+                     oninput="updateQuickRate();updateQuickLoan()" style="width:120px;accent-color:var(--purple)">
+            </div>
+            <div class="loan-ctrl">
+              <label>상환 기간</label>
+              <select id="quick-term" onchange="updateQuickLoan()">
+                <option value="10">10년</option>
+                <option value="20">20년</option>
+                <option value="30" selected>30년</option>
+              </select>
+            </div>
+          </div>
+          <div class="quick-result">
+            <div class="quick-result-box" style="border-color:var(--purple)">
+              <div class="quick-result-label">최대 집 예산</div>
+              <div class="quick-result-val" id="quick-max-house" style="color:var(--purple)">₩0</div>
+              <div class="quick-result-sub" id="quick-breakdown">현금 ₩0 + 대출 ₩0</div>
+            </div>
+            <div class="quick-result-box" style="border-color:var(--orange)">
+              <div class="quick-result-label">월 납입금 (대출분)</div>
+              <div class="quick-result-val" id="quick-monthly" style="color:var(--orange)">-</div>
+              <div class="quick-result-sub" id="quick-monthly-sub"></div>
+            </div>
+          </div>
         </div>
 
         <!-- 총 가용 금액 -->
@@ -498,6 +570,7 @@ const st = {
 let currentPage = 'wedding';
 let refreshTimer = null;
 let pieInst = null, barInst = null, savChartInst = null;
+let currentAvailCash = 0; // 집 페이지 슬라이더에서 공유
 
 // ==================== 네비게이션 ====================
 function showPage(id) {
@@ -757,9 +830,13 @@ function renderWedding() {
     document.getElementById('band-house').style.width   = pHouse + '%';
     document.getElementById('band-wedding').style.width = pWedding + '%';
     document.getElementById('band-remain').style.width  = pRemain + '%';
+    const remainAmt = Math.max(0, base - st.houseBudget - st.totalPlanned);
     document.getElementById('lbl-house-pct').textContent   = Math.round(pHouse) + '%';
     document.getElementById('lbl-wedding-pct').textContent = Math.round(pWedding) + '%';
     document.getElementById('lbl-remain-pct').textContent  = Math.round(pRemain) + '%';
+    document.getElementById('lbl-house-amt').textContent   = won(st.houseBudget);
+    document.getElementById('lbl-wedding-amt').textContent = won(st.totalPlanned);
+    document.getElementById('lbl-remain-amt').textContent  = won(remainAmt);
     document.getElementById('band-asset-lbl').textContent  = `예상 순수 자산: ${won(base)}`;
   }
 
@@ -934,9 +1011,40 @@ function renderHouse() {
     st.totalPlanned === 0 ? '(결혼비용 탭에서 연동)' : '(구글 시트 연동)';
   document.getElementById('cash-sohee-sup').textContent = won(st.parentSohee);
   document.getElementById('cash-sunwo-sup').textContent = won(st.parentSunwo);
+  currentAvailCash = avail;
   document.getElementById('cash-available').textContent = won(avail);
 
+  updateQuickLoan();
   renderLoans(avail);
+}
+
+// ==================== 집 예산 슬라이더 ====================
+function updateQuickRate() {
+  document.getElementById('quick-rate-display').textContent =
+    Number(document.getElementById('quick-rate').value).toFixed(1);
+}
+
+function updateQuickLoan() {
+  const loanAmt = Number(document.getElementById('quick-loan-slider').value);
+  const rate    = Number(document.getElementById('quick-rate').value);
+  const term    = Number(document.getElementById('quick-term').value);
+  const avail   = currentAvailCash;
+
+  document.getElementById('quick-loan-val').textContent = loanAmt === 0 ? '대출 없음' : won(loanAmt);
+
+  const maxHouse = avail + loanAmt;
+  document.getElementById('quick-max-house').textContent = won(maxHouse);
+  document.getElementById('quick-breakdown').textContent =
+    `현금 ${won(avail)} + 대출 ${won(loanAmt)}`;
+
+  if (loanAmt === 0) {
+    document.getElementById('quick-monthly').textContent = '-';
+    document.getElementById('quick-monthly-sub').textContent = '대출 없이 구매';
+  } else {
+    const monthly = calcLoanMonthly({ amount: loanAmt, rate, term, grace: 0, type: '원리금' });
+    document.getElementById('quick-monthly').textContent = wonFull(monthly);
+    document.getElementById('quick-monthly-sub').textContent = `금리 ${rate.toFixed(1)}% · ${term}년 원리금균등`;
+  }
 }
 
 // ==================== 대출 로직 ====================
