@@ -314,36 +314,7 @@ tr:hover td { background: #fafafe; }
           <button class="refresh-btn" id="refresh-btn" onclick="manualRefresh()">🔄 새로고침</button>
         </div>
 
-        <!-- 요약 3카드 -->
-        <div class="summary-grid">
-          <div class="sum-card purple">
-            <div class="sum-lbl">총 결혼비용 예정</div>
-            <div class="sum-val" id="s-total">₩0</div>
-            <div class="sum-hint" id="s-total-hint"></div>
-          </div>
-          <div class="sum-card green">
-            <div class="sum-lbl">지출 완료</div>
-            <div class="sum-val" id="s-paid">₩0</div>
-            <div class="sum-hint" id="s-paid-hint"></div>
-          </div>
-          <div class="sum-card red">
-            <div class="sum-lbl">결제 예정 잔액</div>
-            <div class="sum-val" id="s-remain">₩0</div>
-            <div class="sum-hint">총합 - 지출완료</div>
-          </div>
-        </div>
-
-        <!-- 지출 진행률 -->
-        <div class="card" style="padding:16px 22px; margin-bottom:18px">
-          <h3 style="margin-bottom:10px">💸 결혼비용 지출 진행 현황</h3>
-          <div class="prog-bg"><div class="prog-fill-green" id="prog-fill" style="width:0%"></div></div>
-          <div class="prog-info">
-            <span id="prog-pct-txt">지출 완료 0%</span>
-            <span id="prog-amt-txt">₩0 / ₩0</span>
-          </div>
-        </div>
-
-        <!-- 자산 배분 밴드 -->
+        <!-- 자산 배분 밴드 (최상단) -->
         <div class="card">
           <h3>💡 집 마련을 위한 자금 배분 <span class="card-sub" id="band-asset-lbl"></span></h3>
           <p style="font-size:11px;color:#aaa;margin-top:-8px;margin-bottom:8px">부부 순수 저축 기준 — 집·결혼·여유자금을 어떻게 나눠 쓸지 한눈에</p>
@@ -371,6 +342,35 @@ tr:hover td { background: #fafafe; }
               <span style="color:var(--sub);font-weight:400">(<span id="lbl-remain-pct">0%</span>)</span>
               <span id="lbl-remain-amt" style="color:var(--green);font-weight:800">₩0</span>
             </div>
+          </div>
+        </div>
+
+        <!-- 요약 3카드 -->
+        <div class="summary-grid">
+          <div class="sum-card purple">
+            <div class="sum-lbl">총 결혼비용 예정</div>
+            <div class="sum-val" id="s-total">₩0</div>
+            <div class="sum-hint" id="s-total-hint"></div>
+          </div>
+          <div class="sum-card green">
+            <div class="sum-lbl">지출 완료</div>
+            <div class="sum-val" id="s-paid">₩0</div>
+            <div class="sum-hint" id="s-paid-hint"></div>
+          </div>
+          <div class="sum-card red">
+            <div class="sum-lbl">결제 예정 잔액</div>
+            <div class="sum-val" id="s-remain">₩0</div>
+            <div class="sum-hint">총합 - 지출완료</div>
+          </div>
+        </div>
+
+        <!-- 지출 진행률 -->
+        <div class="card" style="padding:16px 22px; margin-bottom:18px">
+          <h3 style="margin-bottom:10px">💸 결혼비용 지출 진행 현황</h3>
+          <div class="prog-bg"><div class="prog-fill-green" id="prog-fill" style="width:0%"></div></div>
+          <div class="prog-info">
+            <span id="prog-pct-txt">지출 완료 0%</span>
+            <span id="prog-amt-txt">₩0 / ₩0</span>
           </div>
         </div>
 
@@ -427,12 +427,12 @@ tr:hover td { background: #fafafe; }
             <h3 style="color:#e91e8c">🌸 소희</h3>
             <label class="inp-label">현재 저축액 (원)</label>
             <div class="sav-inp-wrap">
-              <input type="number" class="sav-input" id="inp-sohee-cur" oninput="savLbl('inp-sohee-cur','lbl-sc');updateAll()">
+              <input type="text" inputmode="numeric" class="sav-input" id="inp-sohee-cur" oninput="fmtComma(this);savLbl('inp-sohee-cur','lbl-sc');updateAll()">
               <span class="sav-amt-label" id="lbl-sc"></span>
             </div>
             <label class="inp-label">월 저축액 (원)</label>
             <div class="sav-inp-wrap">
-              <input type="number" class="sav-input" id="inp-sohee-mon" oninput="savLbl('inp-sohee-mon','lbl-sm');updateAll()">
+              <input type="text" inputmode="numeric" class="sav-input" id="inp-sohee-mon" oninput="fmtComma(this);savLbl('inp-sohee-mon','lbl-sm');updateAll()">
               <span class="sav-amt-label" id="lbl-sm"></span>
             </div>
           </div>
@@ -440,12 +440,12 @@ tr:hover td { background: #fafafe; }
             <h3 style="color:var(--purple)">🌊 성우</h3>
             <label class="inp-label">현재 저축액 (원)</label>
             <div class="sav-inp-wrap">
-              <input type="number" class="sav-input" id="inp-sunwo-cur" oninput="savLbl('inp-sunwo-cur','lbl-wc');updateAll()">
+              <input type="text" inputmode="numeric" class="sav-input" id="inp-sunwo-cur" oninput="fmtComma(this);savLbl('inp-sunwo-cur','lbl-wc');updateAll()">
               <span class="sav-amt-label" id="lbl-wc"></span>
             </div>
             <label class="inp-label">월 저축액 (원)</label>
             <div class="sav-inp-wrap">
-              <input type="number" class="sav-input" id="inp-sunwo-mon" oninput="savLbl('inp-sunwo-mon','lbl-wm');updateAll()">
+              <input type="text" inputmode="numeric" class="sav-input" id="inp-sunwo-mon" oninput="fmtComma(this);savLbl('inp-sunwo-mon','lbl-wm');updateAll()">
               <span class="sav-amt-label" id="lbl-wm"></span>
             </div>
           </div>
@@ -533,16 +533,20 @@ tr:hover td { background: #fafafe; }
         <div class="card" style="background:transparent;box-shadow:none;padding:0 4px">
           <h3 style="margin-bottom:14px;font-size:13px;font-weight:700;color:#555">🏦 다중 대출 시뮬레이터 <span class="card-sub">여러 대출을 조합해 월 납입금을 확인해요.</span></h3>
 
-          <!-- 슬라이더로 대출 추가 -->
+          <!-- 슬라이더 + 직접 입력으로 대출 추가 -->
           <div class="add-loan-panel">
-            <h4>➕ 대출 추가 (슬라이더로 금액 설정)</h4>
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-              <span style="font-size:13px;font-weight:600;color:#555">대출 금액</span>
-              <span id="add-loan-val" style="font-size:20px;font-weight:900;color:var(--purple)">₩2억</span>
+            <h4>➕ 대출 추가</h4>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:12px">
+              <span style="font-size:13px;font-weight:600;color:#555;flex-shrink:0">대출 금액</span>
+              <input type="text" id="add-loan-amt-inp" value="200,000,000"
+                     inputmode="numeric"
+                     style="width:160px;text-align:right;border:1px solid #ddd;border-radius:8px;padding:6px 10px;font-size:15px;font-weight:800;color:var(--purple);font-family:inherit"
+                     oninput="syncAmt('inp')">
+              <span style="font-size:12px;color:#bbb;flex-shrink:0" id="add-loan-won-lbl">₩2억</span>
             </div>
             <input type="range" class="add-loan-slider" id="add-loan-slider"
                    min="0" max="1000000000" step="10000000" value="200000000"
-                   oninput="updateAddLoanSlider()">
+                   oninput="syncAmt('slider')">
             <div class="add-loan-slider-ticks">
               <span>₩0</span><span>₩2.5억</span><span>₩5억</span><span>₩7.5억</span><span>₩10억</span>
             </div>
@@ -556,12 +560,8 @@ tr:hover td { background: #fafafe; }
                 <input type="number" id="add-loan-rate" value="3.5" step="0.1" style="width:80px">
               </div>
               <div class="inp-grp">
-                <label>기간</label>
-                <select id="add-loan-term">
-                  <option value="10">10년</option>
-                  <option value="20">20년</option>
-                  <option value="30" selected>30년</option>
-                </select>
+                <label>기간 (년)</label>
+                <input type="number" id="add-loan-term" value="30" min="1" max="50" step="1" style="width:70px">
               </div>
               <div class="inp-grp">
                 <label>상환방식</label>
@@ -688,13 +688,35 @@ function monthsBetween(dateStr) {
   return Math.max(0, (d.getFullYear()-t.getFullYear())*12 + (d.getMonth()-t.getMonth()));
 }
 function pct(a, b) { return b > 0 ? Math.min(100, Math.round(a/b*100)) : 0; }
+// 저축 입력 콤마 포맷 (type="text" 전용)
+function fmtComma(el) {
+  const raw = el.value.replace(/[^0-9]/g, '');
+  el.value = raw ? Number(raw).toLocaleString() : '';
+}
+// 콤마 있는 텍스트 인풋에서 숫자 추출
+function getInpNum(id) {
+  return Number(document.getElementById(id).value.replace(/[^0-9]/g, '')) || 0;
+}
+// 저축 오른쪽 간략 레이블
 function savLbl(inputId, labelId) {
-  const n = Number(document.getElementById(inputId).value) || 0;
+  const n = getInpNum(inputId);
   const el = document.getElementById(labelId);
   if (!el) return;
   if (n >= 100000000) el.textContent = `${(n/100000000).toFixed(1)}억원`;
   else if (n >= 10000) el.textContent = `${Math.round(n/10000).toLocaleString()}만원`;
   else el.textContent = n > 0 ? `${n.toLocaleString()}원` : '';
+}
+// 1억 2,345만 형태 상세 금액 표시 (만원 단위까지)
+function wonDetailed(n) {
+  n = Math.round(Number(n) || 0);
+  if (n === 0) return '₩0';
+  if (n >= 100000000) {
+    const uk  = Math.floor(n / 100000000);
+    const man = Math.round((n % 100000000) / 10000);
+    return man === 0 ? `₩${uk}억` : `₩${uk}억 ${man.toLocaleString()}만`;
+  }
+  if (n >= 10000) return `₩${Math.round(n/10000).toLocaleString()}만`;
+  return `₩${n.toLocaleString()}`;
 }
 
 // ==================== CSV 파싱 ====================
@@ -802,10 +824,11 @@ function applySettings(parsed, force) {
   if (!st.initialLoaded || force) {
     // 시트 값 우선: ui에 저장된 값이 있으면 유지, 없으면(0 포함) 시트값으로
     document.getElementById('inp-wed-date').value  = ui.wedDate  || sheetWedDate;
-    document.getElementById('inp-sohee-cur').value = ui.soheeCur || sheetSoheeCur || 0;
-    document.getElementById('inp-sunwo-cur').value = ui.sunwoCur || sheetSunwoCur || 0;
-    document.getElementById('inp-sohee-mon').value = ui.soheeMon || 0;
-    document.getElementById('inp-sunwo-mon').value = ui.sunwoMon || 0;
+    const setFmt = (id, v) => { const n = v||0; document.getElementById(id).value = n ? n.toLocaleString() : ''; };
+    setFmt('inp-sohee-cur', ui.soheeCur || sheetSoheeCur);
+    setFmt('inp-sunwo-cur', ui.sunwoCur || sheetSunwoCur);
+    setFmt('inp-sohee-mon', ui.soheeMon);
+    setFmt('inp-sunwo-mon', ui.sunwoMon);
     if (ui.loanLimit) document.getElementById('inp-loan-limit').value = ui.loanLimit;
     if (ui.incSohee)  document.getElementById('chk-sohee-sup').checked = ui.incSohee;
     if (ui.incSunwo)  document.getElementById('chk-sunwo-sup').checked = ui.incSunwo;
@@ -844,10 +867,10 @@ function saveUIState() {
   });
   localStorage.setItem(LS_UI, JSON.stringify({
     wedDate:  document.getElementById('inp-wed-date').value,
-    soheeCur: Number(document.getElementById('inp-sohee-cur').value) || 0,
-    soheeMon: Number(document.getElementById('inp-sohee-mon').value) || 0,
-    sunwoCur: Number(document.getElementById('inp-sunwo-cur').value) || 0,
-    sunwoMon: Number(document.getElementById('inp-sunwo-mon').value) || 0,
+    soheeCur: getInpNum('inp-sohee-cur'),
+    soheeMon: getInpNum('inp-sohee-mon'),
+    sunwoCur: getInpNum('inp-sunwo-cur'),
+    sunwoMon: getInpNum('inp-sunwo-mon'),
     loanLimit: Number(document.getElementById('inp-loan-limit').value) || 0,
     incSohee: document.getElementById('chk-sohee-sup').checked,
     incSunwo: document.getElementById('chk-sunwo-sup').checked,
@@ -867,10 +890,10 @@ function updateAll() {
 
 function computeSavings() {
   const months   = monthsBetween(document.getElementById('inp-wed-date').value);
-  const soheeCur = Number(document.getElementById('inp-sohee-cur').value) || 0;
-  const soheeMon = Number(document.getElementById('inp-sohee-mon').value) || 0;
-  const sunwoCur = Number(document.getElementById('inp-sunwo-cur').value) || 0;
-  const sunwoMon = Number(document.getElementById('inp-sunwo-mon').value) || 0;
+  const soheeCur = getInpNum('inp-sohee-cur');
+  const soheeMon = getInpNum('inp-sohee-mon');
+  const sunwoCur = getInpNum('inp-sunwo-cur');
+  const sunwoMon = getInpNum('inp-sunwo-mon');
   st.soheeFinal    = soheeCur + soheeMon * months;
   st.sunwoFinal    = sunwoCur + sunwoMon * months;
   st.coupleSavings = st.soheeFinal + st.sunwoFinal;
@@ -1042,10 +1065,10 @@ function renderSavings() {
   document.getElementById('res-couple-tot').textContent = won(st.coupleSavings);
 
   // 저축 차트
-  const soheeCur = Number(document.getElementById('inp-sohee-cur').value)||0;
-  const soheeMon = Number(document.getElementById('inp-sohee-mon').value)||0;
-  const sunwoCur = Number(document.getElementById('inp-sunwo-cur').value)||0;
-  const sunwoMon = Number(document.getElementById('inp-sunwo-mon').value)||0;
+  const soheeCur = getInpNum('inp-sohee-cur');
+  const soheeMon = getInpNum('inp-sohee-mon');
+  const sunwoCur = getInpNum('inp-sunwo-cur');
+  const sunwoMon = getInpNum('inp-sunwo-mon');
   const pts = Math.min(months, 60);
   const labels=[], sD=[], wD=[], tD=[];
   const today = new Date();
@@ -1089,7 +1112,7 @@ function renderHouse() {
   document.getElementById('cash-sohee-sup').textContent = won(st.parentSohee);
   document.getElementById('cash-sunwo-sup').textContent = won(st.parentSunwo);
   currentAvailCash = avail;
-  document.getElementById('cash-available').textContent = won(avail);
+  document.getElementById('cash-available').textContent = wonDetailed(avail);
 
   renderPresetCards();
   renderLoans(avail);
@@ -1124,14 +1147,26 @@ function renderPresetCards() {
 }
 
 // ==================== 슬라이더로 대출 추가 ====================
-function updateAddLoanSlider() {
-  const val = Number(document.getElementById('add-loan-slider').value);
-  document.getElementById('add-loan-val').textContent = val === 0 ? '₩0 (대출 없음)' : won(val);
+// 슬라이더 ↔ 텍스트 입력 양방향 동기화
+function syncAmt(src) {
+  let raw;
+  if (src === 'slider') {
+    raw = Number(document.getElementById('add-loan-slider').value);
+    document.getElementById('add-loan-amt-inp').value = raw ? raw.toLocaleString() : '0';
+  } else {
+    raw = Number(document.getElementById('add-loan-amt-inp').value.replace(/[^0-9]/g, '')) || 0;
+    // 슬라이더 범위 클램프
+    const clamped = Math.min(1000000000, Math.max(0, Math.round(raw / 10000000) * 10000000));
+    document.getElementById('add-loan-slider').value = clamped;
+    document.getElementById('add-loan-amt-inp').value = raw ? raw.toLocaleString() : '';
+  }
+  document.getElementById('add-loan-won-lbl').textContent = raw ? won(raw) : '';
 }
+function updateAddLoanSlider() { syncAmt('slider'); }
 
 function addLoanFromSlider() {
-  const amount = Number(document.getElementById('add-loan-slider').value);
-  if (!amount) { alert('대출 금액을 0 이상으로 설정해주세요.'); return; }
+  const amount = Number(document.getElementById('add-loan-amt-inp').value.replace(/[^0-9]/g,'')) || 0;
+  if (!amount) { alert('대출 금액을 입력해주세요.'); return; }
   st.loans.push({
     id:    Date.now(),
     name:  document.getElementById('add-loan-name').value || '대출',
