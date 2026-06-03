@@ -530,6 +530,18 @@ function won(n) {
 function wonFull(n) {
   return `₩${Math.round(Number(n)||0).toLocaleString()}`;
 }
+// ₩205,000,000 또는 205,000,000 형태 모두 처리
+function parseNum(s) {
+  if (!s) return 0;
+  return Number(String(s).replace(/[₩,\s]/g, '')) || 0;
+}
+// "2027-3-6" → "2027-03-06" (date input 호환 형식)
+function parseSettingDate(s) {
+  if (!s) return '';
+  const p = String(s).trim().split('-');
+  if (p.length === 3) return `${p[0]}-${p[1].padStart(2,'0')}-${p[2].padStart(2,'0')}`;
+  return s;
+}
 function dday(ds) {
   if (!ds) return null;
   const today = new Date(); today.setHours(0,0,0,0);
@@ -633,21 +645,24 @@ async function fetchCSVText(gid) {
 function applySettings(parsed, force) {
   const ui = JSON.parse(localStorage.getItem(LS_UI) || '{}');
 
-  st.targetBudget  = Number(findSetting(parsed, '총결혼예산','결혼예산','목표예산') || 0);
-  st.houseBudget   = Number(findSetting(parsed, '집예산','주택예산') || 0);
-  st.parentSohee   = Number(findSetting(parsed, '소희부모님지원','소희부모지원','신부지원') || 0);
-  st.parentSunwo   = Number(findSetting(parsed, '성우부모님지원','성우부모지원','신랑지원') || 0);
-  st.companyLoanAmt= Number(findSetting(parsed, '회사대출금액','사내대출금액','회사대출') || 0);
+  // parseNum: ₩ 기호와 쉼표(₩205,000,000) 제거 후 숫자 변환
+  st.targetBudget  = parseNum(findSetting(parsed, '총결혼예산','결혼예산','목표예산'));
+  st.houseBudget   = parseNum(findSetting(parsed, '집예산','주택예산'));
+  st.parentSohee   = parseNum(findSetting(parsed, '소희부모님지원','소희부모지원','신부지원'));
+  st.parentSunwo   = parseNum(findSetting(parsed, '성우부모님지원','성우부모지원','신랑지원'));
+  st.companyLoanAmt= parseNum(findSetting(parsed, '회사대출금액','사내대출금액','회사대출'));
 
-  const sheetWedDate  = findSetting(parsed, '결혼예정일','결혼일','예식일') || '';
-  const sheetSoheeCur = Number(findSetting(parsed, '소희현재저축','소희저축액') || 0);
-  const sheetSunwoCur = Number(findSetting(parsed, '성우현재저축','성우저축액') || 0);
+  // parseSettingDate: "2027-3-6" → "2027-03-06" 형식 정규화
+  const sheetWedDate  = parseSettingDate(findSetting(parsed, '결혼예정일','결혼일','예식일') || '');
+  const sheetSoheeCur = parseNum(findSetting(parsed, '소희현재저축','소희저축액'));
+  const sheetSunwoCur = parseNum(findSetting(parsed, '성우현재저축','성우저축액'));
 
   // UI 초기값: localStorage가 없거나 force 새로고침이면 시트값 사용
   if (!st.initialLoaded || force) {
+    // 시트 값 우선: ui에 저장된 값이 있으면 유지, 없으면(0 포함) 시트값으로
     document.getElementById('inp-wed-date').value  = ui.wedDate  || sheetWedDate;
-    document.getElementById('inp-sohee-cur').value = ui.soheeCur !== undefined ? ui.soheeCur : sheetSoheeCur;
-    document.getElementById('inp-sunwo-cur').value = ui.sunwoCur !== undefined ? ui.sunwoCur : sheetSunwoCur;
+    document.getElementById('inp-sohee-cur').value = ui.soheeCur || sheetSoheeCur || 0;
+    document.getElementById('inp-sunwo-cur').value = ui.sunwoCur || sheetSunwoCur || 0;
     document.getElementById('inp-sohee-mon').value = ui.soheeMon || 0;
     document.getElementById('inp-sunwo-mon').value = ui.sunwoMon || 0;
     if (ui.loanLimit) document.getElementById('inp-loan-limit').value = ui.loanLimit;
