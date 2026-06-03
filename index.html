@@ -310,19 +310,34 @@ function parseCSV(text) {
 
 // ===================== 데이터 로딩 =====================
 async function fetchData(url) {
-  // 구글 시트 공개 CSV URL 정규화
-  let fetchUrl = url;
-  // "웹에 게시" URL 형태 처리
-  if (url.includes('docs.google.com/spreadsheets') && !url.includes('export')) {
-    const idMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-    const gidMatch = url.match(/[?&]gid=(\d+)/);
+  // 구글 시트 URL 정규화
+  let fetchUrl = url.trim();
+  if (fetchUrl.includes('docs.google.com/spreadsheets') && !fetchUrl.includes('output=csv') && !fetchUrl.includes('format=csv')) {
+    const idMatch = fetchUrl.match(/spreadsheets\/d\/([^/]+)/);
+    const gidMatch = fetchUrl.match(/[?&]gid=(\d+)/);
     if (idMatch) {
       fetchUrl = `https://docs.google.com/spreadsheets/d/${idMatch[1]}/export?format=csv${gidMatch ? '&gid='+gidMatch[1] : ''}`;
     }
   }
-  const res = await fetch(fetchUrl);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return parseCSV(await res.text());
+
+  // CORS 우회: 구글 시트는 직접 fetch가 막혀있어 프록시 사용
+  const proxies = [
+    u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+    u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+    u => u, // 마지막엔 직접 시도
+  ];
+
+  let lastErr;
+  for (const proxy of proxies) {
+    try {
+      const res = await fetch(proxy(fetchUrl));
+      if (!res.ok) { lastErr = new Error(`HTTP ${res.status}`); continue; }
+      const text = await res.text();
+      if (!text || text.trim().length < 10) { lastErr = new Error('데이터가 비어있어요'); continue; }
+      return parseCSV(text);
+    } catch(e) { lastErr = e; }
+  }
+  throw new Error(lastErr?.message || '데이터를 불러올 수 없어요');
 }
 
 // ===================== 렌더링 =====================
