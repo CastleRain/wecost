@@ -32,11 +32,6 @@ body {
 .header h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
 .header .sub { font-size: 13px; color: var(--sub); margin-top: 6px; }
 .header .updated { font-size: 11px; color: #bbb; margin-top: 3px; }
-.refresh-btn { background: none; border: 1px solid #ddd; border-radius: 20px; padding: 3px 10px; font-size: 11px; color: #aaa; cursor: pointer; margin-top: 6px; transition: all 0.2s; }
-.refresh-btn:hover { border-color: var(--purple); color: var(--purple); }
-.refresh-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-@keyframes spin-inline { to { transform: rotate(360deg); } }
-.spin { display: inline-block; animation: spin-inline 0.7s linear infinite; }
 
 /* ===== 요약 카드 ===== */
 .summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
@@ -182,7 +177,6 @@ tr:hover td { background: #fafafe; }
     <h1>💍 소희성우 결혼비용</h1>
     <div class="sub" id="header-sub"></div>
     <div class="updated" id="header-updated"></div>
-    <button class="refresh-btn" id="refresh-btn" onclick="manualRefresh()">🔄 새로고침</button>
   </div>
 
   <div class="summary">
@@ -251,8 +245,6 @@ tr:hover td { background: #fafafe; }
 <script>
 // ===================== 설정 =====================
 const LS_KEY = 'wedding_sheet_url';
-const SHEET_ID = '1BzjkHnu6fugv2M2W6itFoXTK2lakgw765AcZvPs4pOQ';
-const DEFAULT_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
 
 function toggleConfig() {
   const p = document.getElementById('config-panel');
@@ -318,38 +310,27 @@ function parseCSV(text) {
 
 // ===================== 데이터 로딩 =====================
 async function fetchData(url) {
-  const input = url.trim();
-
-  // 정규 시트 ID 추출 (/d/e/... 형태의 게시 키는 제외)
-  const idMatch = input.match(/spreadsheets\/d\/(?!e\/)([a-zA-Z0-9_-]+)/);
-  const gidMatch = input.match(/[?&]gid=(\d+)/);
-  const gidParam = gidMatch ? `&gid=${gidMatch[1]}` : '';
-
-  // 시도 순서: GViz API → pub URL 직접 → 프록시
-  const candidates = [];
-
-  if (idMatch) {
-    const sid = idMatch[1];
-    // GViz API: CORS 헤더 포함, 가장 안정적
-    candidates.push(`https://docs.google.com/spreadsheets/d/${sid}/gviz/tq?tqx=out:csv${gidParam}`);
+  // 구글 시트 URL 정규화
+  let fetchUrl = url.trim();
+  if (fetchUrl.includes('docs.google.com/spreadsheets') && !fetchUrl.includes('output=csv') && !fetchUrl.includes('format=csv')) {
+    const idMatch = fetchUrl.match(/spreadsheets\/d\/([^/]+)/);
+    const gidMatch = fetchUrl.match(/[?&]gid=(\d+)/);
+    if (idMatch) {
+      fetchUrl = `https://docs.google.com/spreadsheets/d/${idMatch[1]}/export?format=csv${gidMatch ? '&gid='+gidMatch[1] : ''}`;
+    }
   }
 
-  // 웹 게시 CSV URL은 CORS 헤더 포함 → 직접 접근 가능
-  if (input.includes('/pub?') || input.includes('pub?output=csv')) {
-    candidates.push(input);
-  }
-
-  // 프록시 폴백
-  const proxyTarget = idMatch
-    ? `https://docs.google.com/spreadsheets/d/${idMatch[1]}/export?format=csv${gidParam}`
-    : input;
-  candidates.push(`https://corsproxy.io/?${encodeURIComponent(proxyTarget)}`);
-  candidates.push(`https://api.allorigins.win/raw?url=${encodeURIComponent(proxyTarget)}`);
+  // CORS 우회: 구글 시트는 직접 fetch가 막혀있어 프록시 사용
+  const proxies = [
+    u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+    u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+    u => u, // 마지막엔 직접 시도
+  ];
 
   let lastErr;
-  for (const fetchUrl of candidates) {
+  for (const proxy of proxies) {
     try {
-      const res = await fetch(fetchUrl);
+      const res = await fetch(proxy(fetchUrl));
       if (!res.ok) { lastErr = new Error(`HTTP ${res.status}`); continue; }
       const text = await res.text();
       if (!text || text.trim().length < 10) { lastErr = new Error('데이터가 비어있어요'); continue; }
@@ -532,10 +513,7 @@ function renderDash(rows) {
   });
 }
 
-// ===================== 초기화 / 자동갱신 =====================
-const REFRESH_MS = 5 * 60 * 1000; // 5분마다 자동 갱신
-let refreshTimer = null;
-
+// ===================== 초기화 =====================
 function show(id) {
   ['setup-screen','loading-screen','dash'].forEach(s => {
     document.getElementById(s).classList.add('hidden');
@@ -543,34 +521,9 @@ function show(id) {
   document.getElementById(id).classList.remove('hidden');
 }
 
-// 화면 전환 없이 조용히 데이터만 갱신
-async function silentRefresh() {
-  const url = localStorage.getItem(LS_KEY) || DEFAULT_URL;
-  try {
-    const rows = await fetchData(url);
-    renderDash(rows);
-  } catch(e) {
-    // 백그라운드 갱신 실패는 무시 (현재 화면 유지)
-  }
-}
-
-async function manualRefresh() {
-  const btn = document.getElementById('refresh-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spin">🔄</span> 불러오는 중…';
-  await silentRefresh();
-  btn.disabled = false;
-  btn.innerHTML = '🔄 새로고침';
-  resetRefreshTimer();
-}
-
-function resetRefreshTimer() {
-  clearInterval(refreshTimer);
-  refreshTimer = setInterval(silentRefresh, REFRESH_MS);
-}
-
 async function init() {
-  const url = localStorage.getItem(LS_KEY) || DEFAULT_URL;
+  const url = localStorage.getItem(LS_KEY);
+  if (!url) { show('setup-screen'); return; }
 
   show('loading-screen');
   try {
@@ -578,12 +531,11 @@ async function init() {
     const rows = await fetchData(url);
     renderDash(rows);
     show('dash');
-    resetRefreshTimer(); // 첫 로드 성공 후 자동갱신 시작
   } catch(e) {
     document.getElementById('loading-screen').innerHTML = `
       <div class="loading">
         <p style="color:#e74c3c">⚠️ 데이터를 불러올 수 없어요.<br><small>${e.message}</small></p>
-        <p style="margin-top:12px;font-size:12px;color:#aaa">구글 시트가 공개 설정되어 있는지 확인해주세요.<br>오른쪽 하단 ⚙️ 버튼으로 URL을 변경할 수 있어요.</p>
+        <p style="margin-top:12px;font-size:12px;color:#aaa">구글 시트가 공개 설정되어 있는지 확인해주세요.</p>
       </div>`;
   }
 }
